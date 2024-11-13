@@ -1,9 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import "./style.css"
-// import createBrowserHistoty from 'react-router-dom'
-
+import "./style.css";
 export function FormPagesUZ({ lng }) {
   const notify = () => toast("Here is your toast.");
   const navigate = useNavigate();
@@ -21,30 +19,33 @@ export function FormPagesUZ({ lng }) {
     surname: "",
     seria: "",
     jshshir: "",
-    phone: "",
+    phone: "+998 ",
     category: 1,
   });
   function NowUser({ target: { value, name } }) {
     SetUser({ ...user, [name]: value });
   }
+
   function Add(e) {
     e.preventDefault();
     if (
       String(user.name).length > 0 &&
       String(user.surname).length > 0 &&
-      String(user.phone).length >= 0 &&
-      String(user.jshshir).length > 0 &&
-      String(user.seria).length > 0 &&
+      String(user.phone).length == 14 &&
+      String(user.jshshir).length == 7 &&
+      String(user.seria).length == 2 &&
       String(user.category).length > 0
     ) {
       fetch("https://husidev007.pythonanywhere.com/app/application/add/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
-      }).then((res) =>
-        res.status >= 200 && res.status <= 300
-          ? toast.success("Successfully toasted!")
-          : toast.error("This didn't work.")
+      }).then(
+        (res) =>
+          res.status >= 200 && res.status <= 300
+            ? toast.success("Successfully toasted!")
+            : toast.error("This didn't work."),
+        setTimeout(() => navigate("/"), 3000)
       );
       SetUser({
         name: "",
@@ -54,23 +55,21 @@ export function FormPagesUZ({ lng }) {
         phone: "",
         category: 1,
       });
-      setTimeout(() => navigate("/"), 3000);
     } else {
       // toast.error("This didn't work.");
-
       if (String(user.name).length <= 0) {
         setNameBorder(true);
       }
       if (String(user.surname).length <= 0) {
         setSurNameBorder(true);
       }
-      if (String(user.phone).length <= 0) {
+      if (String(user.phone).length !== 13) {
         setPhoneBorder(true);
       }
-      if (String(user.jshshir).length <= 0) {
+      if (String(user.jshshir).length !== 7) {
         setJshshirBorder(true);
       }
-      if (String(user.seria).length <= 0) {
+      if (String(user.seria).length !== 2) {
         setSeriaBorder(true);
       }
     }
@@ -120,10 +119,12 @@ export function FormPagesUZ({ lng }) {
             placeholder="AB"
             onChange={(e) => {
               setSeriaBorder(false);
-              NowUser(e);
+              SetUser({ ...user, seria: e.target.value.toUpperCase() });
             }}
             name="seria"
             value={user.seria}
+            maxLength={2}
+            minLength={2}
           />
           <input
             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(45%-20px)] mb-[20px]"
@@ -135,7 +136,24 @@ export function FormPagesUZ({ lng }) {
             name="jshshir"
             onChange={(e) => {
               setJshshirBorder(false);
-              NowUser(e);
+              if (
+                e.target.value.slice(-1) == 1 ||
+                e.target.value.slice(-1) == 2 ||
+                e.target.value.slice(-1) == 3 ||
+                e.target.value.slice(-1) == 4 ||
+                e.target.value.slice(-1) == 5 ||
+                e.target.value.slice(-1) == 6 ||
+                e.target.value.slice(-1) == 7 ||
+                e.target.value.slice(-1) == 8 ||
+                e.target.value.slice(-1) == 9 ||
+                e.target.value.slice(-1) == 0
+              ) {
+                NowUser(e);
+              }
+              // SetUser({
+              //   ...user,
+              //   jshshir: e.target.value,
+              // });
             }}
             value={user.jshshir}
             minLength="7"
@@ -157,12 +175,36 @@ export function FormPagesUZ({ lng }) {
             }
             onChange={(e) => {
               setPhoneBorder(false);
-              NowUser(e);
+              if (
+                e.target.value.slice(-1) == 1 ||
+                e.target.value.slice(-1) == 2 ||
+                e.target.value.slice(-1) == 3 ||
+                e.target.value.slice(-1) == 4 ||
+                e.target.value.slice(-1) == 5 ||
+                e.target.value.slice(-1) == 6 ||
+                e.target.value.slice(-1) == 7 ||
+                e.target.value.slice(-1) == 8 ||
+                e.target.value.slice(-1) == 9 ||
+                e.target.value.slice(-1) == 0
+              ) {
+                SetUser({
+                  ...user,
+                  phone: e.target.value,
+                });
+                if (
+                  user.phone.length === 8 ||
+                  user.phone.length === 11 ||
+                  user.phone.length === 14
+                ) {
+                  SetUser({ ...user, phone: user.phone + " " });
+                }
+                //  NowUser(e);
+              }
             }}
             name="phone"
             value={user.phone}
-            minLength="9"
-            maxLength="13"
+            minLength="14"
+            maxLength="14"
             required
           />
           <Link onClick={Add} className="w-[100%]" to={"/"}>
