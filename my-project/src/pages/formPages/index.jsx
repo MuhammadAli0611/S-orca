@@ -3,12 +3,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import "./style.css";
 export function FormPagesUZ({ lng }) {
-  const notify = () => toast("Here is your toast.");
+  const [isDisabled, setIsDisabled] = useState(false);
+  let [phone, SetPhone] = useState(4);
   const navigate = useNavigate();
   let [errorData, SetErrorData] = useState(false);
   let [isLoading, setIsLoading] = useState(false);
-  // navigate("/")
-  // const history = createBrowserHistoty();
   let [phoneBorder, setPhoneBorder] = useState(false);
   let [nameBorder, setNameBorder] = useState(false);
   let [surNameBorder, setSurNameBorder] = useState(false);
@@ -40,13 +39,35 @@ export function FormPagesUZ({ lng }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
-      }).then(
-        (res) =>
-          res.status >= 200 && res.status <= 300
-            ? toast.success("Successfully toasted!")
-            : toast.error("This didn't work."),
-        setTimeout(() => navigate("/"), 3000)
-      );
+      })
+        .then(
+          (res) =>
+            res.status >= 200 && res.status <= 300
+              ? toast.success(
+                  lng === "uz"
+                    ? "Muvaffaqiyatli bajarildi!"
+                    : lng === "ru"
+                    ? "Сделано успешно!"
+                    : "Done successfully!"
+                )
+              : toast.error(
+                  lng === "uz"
+                    ? "Saytda vaqtinchalik xatolik yuz berdi!"
+                    : lng === "ru"
+                    ? "На сайте произошла временная ошибка!"
+                    : "There was a temporary error on the site!"
+                ),
+          setTimeout(() => navigate("/"), 4000)
+        )
+        .catch(
+          toast.error(
+            lng === "uz"
+              ? "Serverda xatolik yuz berdi!"
+              : lng === "ru"
+              ? "На сервере произошла ошибка!"
+              : "An error occurred on the server!"
+          )
+        );
       SetUser({
         name: "",
         surname: "",
@@ -56,14 +77,25 @@ export function FormPagesUZ({ lng }) {
         category: 1,
       });
     } else {
-      // toast.error("This didn't work.");
+      setIsDisabled(true);
+      setTimeout(() => {
+        setIsDisabled(false);
+      }, 4000);
+      toast.error(
+        lng === "uz"
+          ? "Forma to'liq emas!"
+          : lng === "ru"
+          ? "Форма неполная!"
+          : "The form is incomplete!"
+      );
+
       if (String(user.name).length <= 0) {
         setNameBorder(true);
       }
       if (String(user.surname).length <= 0) {
         setSurNameBorder(true);
       }
-      if (String(user.phone).length !== 13) {
+      if (String(user.phone).length !== 14) {
         setPhoneBorder(true);
       }
       if (String(user.jshshir).length !== 7) {
@@ -187,28 +219,47 @@ export function FormPagesUZ({ lng }) {
                 e.target.value.slice(-1) == 9 ||
                 e.target.value.slice(-1) == 0
               ) {
-                SetUser({
-                  ...user,
-                  phone: e.target.value,
-                });
-                if (
-                  user.phone.length === 8 ||
-                  user.phone.length === 11 ||
-                  user.phone.length === 14
-                ) {
-                  SetUser({ ...user, phone: user.phone + " " });
+                if (phone < e.target.value.length) {
+                  if (
+                    user.phone.length === 3 ||
+                    user.phone.length === 7 ||
+                    user.phone.length === 10
+                  ) {
+                    SetUser({ ...user, phone: e.target.value + " " });
+                  }
+                  // else if (
+                  //   user.phone.length === 4 ||
+                  //   user.phone.length === 8 ||
+                  //   user.phone.length === 11
+                  // ) {
+                  // }
+                  else {
+                    SetUser({
+                      ...user,
+                      phone: e.target.value,
+                    });
+                  }
+                } else {
+                  SetUser({
+                    ...user,
+                    phone: e.target.value,
+                  });
                 }
-                //  NowUser(e);
+                // alert(user.phone.length - phone);
+                SetPhone(e.target.value.length);
               }
             }}
             name="phone"
             value={user.phone}
-            minLength="14"
+            // minLength="14"
             maxLength="14"
             required
           />
           <Link onClick={Add} className="w-[100%]" to={"/"}>
-            <button className="w-[100%] text-[40px] bg-[#0275d8] h-[100px] rounded-[10px] text-white font-bold ">
+            <button
+              disabled={isDisabled}
+              className="w-[100%] text-[40px] bg-[#0275d8] h-[100px] rounded-[10px] text-white font-bold "
+            >
               {lng === "uz"
                 ? "Тел рақамни тасдиқлаш"
                 : lng === "ru"
@@ -221,91 +272,3 @@ export function FormPagesUZ({ lng }) {
     </>
   );
 }
-
-// export function FormPagesRU() {
-//   return (
-//     <>
-//       <div className="w-[40%]  mt-[500px] mx-auto flex items-center justify-center">
-//         <div className="flex flex-wrap justify-between">
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(50%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="имя"
-//           />
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(50%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder=""
-//           />
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(10%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="AB"
-//           />
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(45%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="1012655"
-//           />
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(45%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="Номер телефона"
-//           />
-//           <button className="w-[100%] text-[40px] bg-[#0275d8] h-[100px] rounded-[10px] text-white font-bold ">
-//             Подтвердить номер телефона
-//           </button>
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-// export function FormPagesENG() {
-//   return (
-//     <>
-//       <div className="w-[40%]  mt-[500px] mx-auto flex items-center justify-center">
-//         <div className="flex flex-wrap justify-between">
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(50%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="name"
-//           />
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(50%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="last name"
-//           />
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(10%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="AB"
-//           />
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(45%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="1012655"
-//           />
-//           <input
-//             className="px-4 box-border h-[100px] rounded-[10px] text-[30px] font-bold w-[calc(45%-20px)] mb-[20px]"
-//             style={{ border: "1px solid #eee7e7" }}
-//             type="text"
-//             placeholder="Phone number"
-//           />
-//           <button className="w-[100%] text-[40px] bg-[#0275d8] h-[100px] rounded-[10px] text-white font-bold ">
-//             Confirm phone number
-//           </button>
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
